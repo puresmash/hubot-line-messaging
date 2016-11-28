@@ -1,0 +1,26 @@
+{
+  "name": "hubot-line-messaging",
+  "version": "0.2.0",
+  "author": "swat <puresmash@gmail.com>",
+  "description": "A Hubot adapter for Line Message API",
+  "main": "./src/line",
+  "dependencies": {
+    "hubot": "^2.19.0",
+    "parent-require": "^1.0.0"
+  },
+  "peerDependencies": {
+    "hubot": ">=2.0"
+  },
+  "devDependencies": {
+    "coffee-script": ">=1.2.0"
+  },
+  "keywords": [
+    "hubot",
+    "line",
+    "adapter"
+  ],
+  "engines": {
+    "node": "5.9.1"
+  },
+  "license": "MIT"
+}
