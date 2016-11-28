@@ -1,6 +1,6 @@
 # hubot-line-messaging
 
-This is a Hubot adapter for [Line Messaging API](https://business.line.me/zh-hant/services/bot) and it supports Line Business Center. This adapter currently only supports [reply text message](https://devdocs.line.me/en/?shell#reply-message), but will include more messaging api recently. 
+This is a Hubot adapter for [Line Messaging API](https://business.line.me/zh-hant/services/bot) and it supports Line Business Center. This adapter currently only supports [reply text message](https://devdocs.line.me/en/?shell#reply-message), but will include more messaging api recently.
 
 ## Installation
 
@@ -43,6 +43,22 @@ As mentioned in [Hubot's document](https://github.com/github/hubot/blob/master/d
 - BB8: ${keyword}
 
 Unlike some hubot adapter, it won't response unless you include robot's name in the beginning of your message.
+
+### Scripting
+
+Use it like that in your scripts.js
+
+```javascript
+module.exports = function(robot){
+    robot.respond(/hello/i, function(res){
+        res.reply('world');
+    });
+}
+```
+
+Then after you send a message - `@botname hello` in line application, you will receive a response - `world`
+
+<img src="test_result.png" style="width : 30%" />
 
 ## Remark
 
