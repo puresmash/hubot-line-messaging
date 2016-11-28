@@ -16,7 +16,7 @@ class LineAdapter extends Adapter
         @LINE_TOKEN = process.env.HUBOT_LINE_TOKEN
 
     reply: (envelope, strings...) ->
-        @_sendText envelope.user.replyToken, msg for msg in strings
+        @_sendText envelope.message.replyToken, msg for msg in strings
 
     _sendText: (token, msg) ->
         logger = @robot.logger
@@ -56,9 +56,10 @@ class LineAdapter extends Adapter
 
         bot.on 'message',
             (userId, replyToken, text, id) ->
-                user = @robot.brain.userForId userId, {replyToken}
+                user = @robot.brain.userForId userId
                 # console.log util.inspect replyToken, false, null
                 message = new TextMessage(user, text, id)
+                message.replyToken = replyToken
                 self.receive message
         bot.listen()
         self.emit "connected"
