@@ -55,8 +55,8 @@ class LineAdapter extends Adapter
         bot = new LineStreaming(options, @robot)
 
         bot.on 'message',
-            (userId, replyToken, text, id) ->
-                user = @robot.brain.userForId userId
+            (sourceId, replyToken, text, id) ->
+                user = @robot.brain.userForId sourceId
                 # console.log util.inspect replyToken, false, null
                 message = new TextMessage(user, text, id)
                 message.replyToken = replyToken
@@ -75,7 +75,7 @@ class LineStreaming extends EventEmitter
         #     console.log 'LISTEN'
         #     replyToken = 'testing token'
         #     eventType = 'message'
-        #     text = 'Hubot:hello'
+        #     text = 'Hubot:hello 中文'
         #     id = 'testing id'
         #     userId = 'testing uid';
         #     # Can't handle other event now, discards them
@@ -95,10 +95,11 @@ class LineStreaming extends EventEmitter
             message = @getMessage event
             text = message.text
             id = message.id
+            @robot.logger.debug "text: #{text}"
 
             # Source
             source = @getSource event
-            userId = source.userId or source.roomId
+            sourceId = source.userId or source.roomId or source.groupId
 
             # Validate signature
             headerSignature = req.headers['x-line-signature'];
@@ -112,7 +113,7 @@ class LineStreaming extends EventEmitter
             # Pass Validate
             # Can't handle other event now, discards them
             if eventType is 'message'
-                @emit 'message', userId, replyToken, text, id
+                @emit 'message', sourceId, replyToken, text, id
 
             res.send 'OK'
 
@@ -123,12 +124,13 @@ class LineStreaming extends EventEmitter
             id: event.message.id;
         return message
 
-    # Source_Type = ['room', 'user']
+    # Source_Type = ['group', 'room', 'user']
     getSource: (event)->
         source =
             sourceType: event.source.type
             roomId: event.source.userId
             userId: event.source.roomId
+            groupId: event.source.groupId
         return source
 
     validateSignature: (content, headerSignature)->
