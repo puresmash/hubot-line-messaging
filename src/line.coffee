@@ -85,11 +85,21 @@ class LineStreaming extends EventEmitter
 
         @robot.router.post @PATH, (req, res) =>
             @robot.logger.debug 'GET LINE MSG'
-            replyToken = req.body.events[0].replyToken;
-            eventType = req.body.events[0].type;
-            text = req.body.events[0].message.text;
-            id = req.body.events[0].message.id;
-            userId = req.body.events[0].source.userId;
+
+            # Event
+            event = events[0];
+            replyToken = event.replyToken;
+            eventType = event.type;
+
+            # Message
+            message = @getMessage event
+            text = message.text
+            id = message.id
+
+            # Source
+            source = @getSource event
+            userId = source.userId or source.roomId
+
             # Validate signature
             headerSignature = req.headers['x-line-signature'];
             isValid = @validateSignature req.body, headerSignature
@@ -97,12 +107,28 @@ class LineStreaming extends EventEmitter
                 @robot.logger.debug "Failed validate, result: #{isValid}"
                 res.send 'Auth Failed'
                 return;
+
             # Pass Validate
             # Can't handle other event now, discards them
             if eventType is 'message'
                 @emit 'message', userId, replyToken, text, id
 
             res.send 'OK'
+
+    # Message_Type = ['text']
+    getMessage: (event)->
+        message =
+            text: event.message.text;
+            id: event.message.id;
+        return message
+
+    # Source_Type = ['room', 'user']
+    getSource: (event)->
+        source =
+            sourceType: event.source.type
+            roomId: event.source.userId
+            userId: event.source.roomId
+        return source
 
     validateSignature: (content, headerSignature)->
         genSign = @generateSignature content
