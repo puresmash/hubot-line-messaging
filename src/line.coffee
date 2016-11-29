@@ -87,7 +87,7 @@ class LineStreaming extends EventEmitter
             @robot.logger.debug 'GET LINE MSG'
 
             # Event
-            event = events[0];
+            event = req.body.events[0];
             replyToken = event.replyToken;
             eventType = event.type;
 
