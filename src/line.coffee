@@ -105,6 +105,7 @@ class LineStreaming extends EventEmitter
             isValid = @validateSignature req.body, headerSignature
             unless isValid
                 @robot.logger.debug "Failed validate, result: #{isValid}"
+                @robot.logger.debug "headerSignature: #{headerSignature}"
                 res.send 'Auth Failed'
                 return;
 
@@ -136,7 +137,7 @@ class LineStreaming extends EventEmitter
 
     generateSignature: (content)->
         return crypto.createHmac('SHA256', @CHANNEL_SECRET)
-            .update(JSON.stringify(content))
+            .update(JSON.stringify(content), 'utf8')
             .digest('base64')
 
 exports.use = (robot) ->
