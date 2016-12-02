@@ -79,7 +79,7 @@ Unlike some hubot adapter, it won't response unless you include robot's name in 
 There are several message type which is deffined in LINE's document. You can require one of those like below
 
 ```javascript
-var LineMessaging = require('../index.coffee')
+var LineMessaging = require('hubot-line-messaging')
 var SendSticker = LineMessaging.SendSticker
 var SendLocation = LineMessaging.SendLocation
 var SendImage = LineMessaging.SendImage
