@@ -4,27 +4,41 @@ catch
   prequire = require('parent-require')
   {Robot,Adapter,TextMessage,User} = prequire 'hubot'
 
+{SendObject, SendSticker} = require './response'
 {EventEmitter} = require 'events'
 util = require 'util'
 crypto = require 'crypto'
 
 class LineAdapter extends Adapter
-    constructor: ->
-        super
+    constructor: (@robot) ->
+        super @robot
 
         @REPLY_URL = 'https://api.line.me/v2/bot/message/reply'
         @LINE_TOKEN = process.env.HUBOT_LINE_TOKEN
 
-    reply: (envelope, strings...) ->
-        @_sendText envelope.message.replyToken, msg for msg in strings
+    # Use send when you need to PUSH message
+    send: (envelope, msgObjs...)->
+        @robot.logger.debug 'Send will be provided in future version'
 
-    _sendText: (token, msg) ->
+    # Use reply when you need to REPLY message
+    reply: (envelope, msgObjs...) ->
+        replyToken = envelope.message.replyToken
+        replyObj =  @_formatReplyObj replyToken, msgObjs
+        @_sendReply replyObj
+
+    # Use reply when you need to REPLY message
+    emote: (envelope, msgObjs...) ->
+        replyToken = envelope.message.replyToken
+        replyObj =  @_formatReplyObj replyToken, msgObjs
+        @_sendReply replyObj
+
+    _sendReply: (replyObj) ->
         logger = @robot.logger
-
+        json = JSON.stringify(replyObj)
         @robot.http(@REPLY_URL)
             .header('Content-Type', 'application/json')
             .header('Authorization', "Bearer #{@LINE_TOKEN}")
-            .post(JSON.stringify(@_formatReplyObj token, msg)) (err, res, body) ->
+            .post(json) (err, res, body) ->
                 if err
                     logger.error "Error sending msg: #{err}"
                     return
@@ -34,17 +48,54 @@ class LineAdapter extends Adapter
                     logger.debug "Error with statusCode: #{res.statusCode}"
                     logger.debug "Body: #{body}"
 
-
-    _formatReplyObj: (token, msg) ->
-        return {
+    _formatReplyObj: (token, msgAry) ->
+        reply =  {
             "replyToken": token,
-            "messages":[
-                {
-                    "type": "text",
-                    "text": msg
-                }
-            ]
+            "messages":[]
         }
+        reply.messages.push @_formatMsgObj msgObj for msgObj in msgAry
+        return reply
+
+    _formatMsgObj: (msgObj) ->
+        # @robot.logger.debug 'msgObj'
+        # @robot.logger.debug util.inspect msgObj, true, null
+        # @robot.logger.debug 'typeof msgObj'
+        # @robot.logger.debug typeof msgObj
+        # @robot.logger.debug 'msgObj instanceof SendObject'
+        # @robot.logger.debug msgObj instanceof SendObject
+        # @robot.logger.debug 'msgObj instanceof SendSticker'
+        # @robot.logger.debug msgObj instanceof SendSticker
+        if msgObj and msgObj.type
+            return {
+                "type": msgObj.type,
+                "packageId": msgObj.packageId if msgObj.packageId?,
+                "stickerId": msgObj.stickerId if msgObj.stickerId?,
+                "title": msgObj.title if msgObj.title?,
+                "address": msgObj.address if msgObj.address?,
+                "latitude": msgObj.latitude if msgObj.latitude?,
+                "longitude": msgObj.longitude if msgObj.longitude?,
+                "originalContentUrl": msgObj.originalContentUrl if msgObj.originalContentUrl?,
+                "previewImageUrl": msgObj.previewImageUrl if msgObj.previewImageUrl?,
+                "duration": msgObj.duration if msgObj.duration?,
+                "text": msgObj.text if msgObj.text?,
+            }
+        else if typeof msgObj is 'string'
+            return {
+                "type": "text",
+                "text": msgObj
+            }
+
+
+    # _formatTextObj: (token, msg) ->
+    #     return {
+    #         "replyToken": token,
+    #         "messages":[
+    #             {
+    #                 "type": "text",
+    #                 "text": msg
+    #             }
+    #         ]
+    #     }
 
     run: ->
         self = @
@@ -142,5 +193,4 @@ class LineStreaming extends EventEmitter
             .update(JSON.stringify(content), 'utf8')
             .digest('base64')
 
-exports.use = (robot) ->
-    new LineAdapter robot
+module.exports = LineAdapter
