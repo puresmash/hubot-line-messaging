@@ -110,7 +110,7 @@ res.reply('This is a text', 'Second Line');
 
 **Image**
 
-<img src="./docs/image.png" style="width : 30%" />
+<img src="./docs/image.png" width="240px" />
 
 ```javascript
 let originalContentUrl = 'https://placeholdit.imgix.net/~text?txtsize=45&txt=480%C3%97480&w=480&h=480';
