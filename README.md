@@ -8,7 +8,7 @@ This is a Hubot adapter for [Line Messaging API](https://business.line.me/zh-han
 
 ### Getting started
 
-Because it is a adapter of hubot, first you must install hubot on your device. Follow the guidance on [hubot official document](https://hubot.github.com/docs/).
+Because it is an adapter of hubot, first you must install hubot on your device. Follow the guidance on [hubot official document](https://hubot.github.com/docs/).
 
 Then install this adapter to your project by running
 
@@ -62,7 +62,7 @@ Restart your robot, then send a message - `@botname hello` in line application. 
 
 <img src="./docs/test_result.png" style="width : 30%" />
 
-Notice that we support only REPLY MESSAGE API for now, so use `res.reply()` or `res.emote()` only. `res.send()` will reserved until PUSH MESSAGE API is officially support.
+Notice that we support only REPLY MESSAGE API for now, so use `res.reply()` or `res.emote()` only. `res.send()` will reserved until PUSH MESSAGE API is officially supported.
 
 ### Receive Message
 
@@ -76,7 +76,7 @@ Unlike some hubot adapter, it won't response unless you include robot's name in 
 
 ### Message Type
 
-There are several message type which is deffined in LINE's document. You can require one of those like below
+There are several message type which is defined in LINE's document. You can require one of those like below
 
 ```javascript
 var LineMessaging = require('hubot-line-messaging')
@@ -90,7 +90,7 @@ var SendText = LineMessaging.SendText
 
 **Text**
 
-Text is a basic message type, can calling it in two way.
+Text is a basic message type, can call it in two way.
 
 ```javascript
 // Generate a Text object
@@ -115,7 +115,7 @@ res.reply('This is a text', 'Second Line');
 ```javascript
 let originalContentUrl = 'https://placeholdit.imgix.net/~text?txtsize=45&txt=480%C3%97480&w=480&h=480';
 let previewImageUrl = 'https://placeholdit.imgix.net/~text?txtsize=23&txt=240%C3%97240&w=240&h=240';
-	
+
 // Reply message
 res.reply(new SendImage(originalContentUrl, previewImageUrl));
 ```
