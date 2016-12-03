@@ -15,6 +15,7 @@ class LineAdapter extends Adapter
 
         @REPLY_URL = 'https://api.line.me/v2/bot/message/reply'
         @LINE_TOKEN = process.env.HUBOT_LINE_TOKEN
+        # @IS_TESTING = process.env.NODE_TESTING
 
     # Use send when you need to PUSH message
     send: (envelope, msgObjs...)->
@@ -35,6 +36,7 @@ class LineAdapter extends Adapter
     _sendReply: (replyObj) ->
         logger = @robot.logger
         json = JSON.stringify(replyObj)
+        # console.log replyObj
         @robot.http(@REPLY_URL)
             .header('Content-Type', 'application/json')
             .header('Authorization', "Bearer #{@LINE_TOKEN}")
@@ -85,7 +87,8 @@ class LineAdapter extends Adapter
                 "text": msgObj
             }
 
-
+    # forTesting: (fn) ->
+    #     @reply = fn
     # _formatTextObj: (token, msg) ->
     #     return {
     #         "replyToken": token,
@@ -104,7 +107,6 @@ class LineAdapter extends Adapter
             path: '/'
 
         bot = new LineStreaming(options, @robot)
-
         bot.on 'message',
             (sourceId, replyToken, text, id) ->
                 user = @robot.brain.userForId sourceId
@@ -112,6 +114,7 @@ class LineAdapter extends Adapter
                 message = new TextMessage(user, text, id)
                 message.replyToken = replyToken
                 self.receive message
+
         bot.listen()
         self.emit "connected"
 
@@ -122,17 +125,18 @@ class LineStreaming extends EventEmitter
         @CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET
 
     listen: ->
-        # @robot.router.get @PATH, (req, res) =>
-        #     console.log 'LISTEN'
-        #     replyToken = 'testing token'
-        #     eventType = 'message'
-        #     text = 'Hubot:hello 中文'
-        #     id = 'testing id'
-        #     userId = 'testing uid';
-        #     # Can't handle other event now, discards them
-        #     if eventType is 'message'
-        #         @emit 'message', userId, replyToken, text, id
-        #     res.send 'OK'
+        # if @IS_TESTING
+        #     @robot.router.get @PATH, (req, res) =>
+        #         console.log 'LISTEN'
+        #         replyToken = 'testing token'
+        #         eventType = 'message'
+        #         text = 'Hubot:hello 中文'
+        #         id = 'testing id'
+        #         userId = 'testing uid'
+        #         # Can't handle other event now, discards them
+        #         if eventType is 'message'
+        #             @emit 'message', userId, replyToken, text, id
+        #         res.send 'OK'
 
         @robot.router.post @PATH, (req, res) =>
             @robot.logger.debug 'GET LINE MSG'

@@ -1,9 +1,13 @@
 {
   "name": "hubot-line-messaging",
-  "version": "0.3.0-beta",
+  "version": "0.3.0",
   "author": "swat <puresmash@gmail.com>",
   "description": "A Hubot adapter for Line Message API",
   "main": "./index",
+  "scripts": {
+    "test": "NODE_PATH=. mocha --compilers coffee:coffee-script",
+    "debug-for-test": "NODE_PATH=. HUBOT_LOG_LEVEL=debug mocha --compilers coffee:coffee-script"
+  },
   "dependencies": {
     "hubot": "^2.19.0",
     "parent-require": "^1.0.0"
@@ -12,7 +16,10 @@
     "hubot": ">=2.0"
   },
   "devDependencies": {
-    "coffee-script": ">=1.2.0"
+    "chai": "^3.5.0",
+    "coffee-script": ">=1.2.0",
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.6"
   },
   "keywords": [
     "hubot",
@@ -22,5 +29,17 @@
   "engines": {
     "node": "5.9.1"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puresmash/hubot-line-messaging.git"
+  },
+  "bugs": {
+    "url": "https://github.com/puresmash/hubot-line-messaging/issues"
+  },
+  "homepage": "https://github.com/puresmash/hubot-line-messaging#readme"
 }
