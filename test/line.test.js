@@ -70,8 +70,8 @@ describe('Test Line Adapter', function() {
         robot.shutdown();
     });
 
-    describe('Reply for TextMessage', function(){
-        describe('Respond Text', function(){
+    describe('when receiving Text Message from adapter', function(){
+        describe('giving Text Respond Rule defined', function(){
             before(function(done){
                 robot.respond(/hello/i, function(res){
                     res.reply('world');
@@ -79,7 +79,7 @@ describe('Test Line Adapter', function() {
                 done();
             });
 
-            it("responds a text", function(done) {
+            it("should reply a text", function(done) {
                 // var spy = sinon.spy(adapter, '_sendReply');
                 var stub = sinon.stub(adapter, '_sendReply');
                 var expected = {
@@ -104,7 +104,7 @@ describe('Test Line Adapter', function() {
             });
         });
 
-        describe('Respond Sticker', function() {
+        describe('giving Sticker Respond Rule defined', function() {
             before(function(done){
                 robot.respond(/sticker (.*)/i, function(res){
                     let keyword = res.match[1];
@@ -114,7 +114,7 @@ describe('Test Line Adapter', function() {
                 done();
             });
 
-            it("responds a sticker", function(done) {
+            it("should reply a sticker", function(done) {
 
                 var stub = sinon.stub(adapter, '_sendReply');
                 var expected = {
@@ -141,7 +141,7 @@ describe('Test Line Adapter', function() {
         });
     });
 
-    describe('Reply for StickerMessage', function(){
+    describe('when receiving Sticker Message from adapter', function(){
         before(function(done){
             var matcher = function(message){
                 // Not implement listenrt, so should CatchAllMessage.message
@@ -160,8 +160,8 @@ describe('Test Line Adapter', function() {
             done();
         });
 
-        describe('Respond Sticker', function(){
-            it('responds the same sticker', function(done){
+        describe('giving Sticker Respond Rule defined', function(){
+            it('should reply a sticker', function(done){
                 var stub = sinon.stub(adapter, '_sendReply');
                 var expected = {
                     "replyToken": "testing token",
@@ -185,7 +185,7 @@ describe('Test Line Adapter', function() {
     });
 
 
-    describe('Functionality of Webhook (LineStreaming)', function() {
+    describe('when hear a Webhook request from Line', function() {
         var httpRequest;
         var autoPassValidate;
         var input;
@@ -217,7 +217,7 @@ describe('Test Line Adapter', function() {
             autoPassValidate.restore();
         });
 
-        describe('Test Text Request', function() {
+        describe('with text message content', function() {
             var json;
             var message = {
                 "id": "325708",
@@ -233,7 +233,7 @@ describe('Test Line Adapter', function() {
                 done();
             });
 
-            it("streaming emit a text event", function(done) {
+            it("should emit a text event to customize scripts", function(done) {
 
                 var spy = sinon.spy();
                 var expected = {
@@ -261,7 +261,7 @@ describe('Test Line Adapter', function() {
             });
         });
 
-        describe('Test Sticker Request', function() {
+        describe('with sticker message content', function() {
             var json;
             var message = {
                 "id": "325708",
@@ -278,7 +278,7 @@ describe('Test Line Adapter', function() {
                 done();
             });
 
-            it("streaming emit a sticker event", function(done) {
+            it("should emit a sticker event to customize scripts", function(done) {
 
                 var spy = sinon.spy();
                 var expected = {
