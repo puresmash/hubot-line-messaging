@@ -4,7 +4,8 @@ catch
   prequire = require('parent-require')
   {Robot,Adapter,TextMessage,User} = prequire 'hubot'
 
-{SendObject, SendSticker} = require './response'
+# {SendObject, SendSticker} = require './response'
+{ImageMessage, VideoMessage, AudioMessage, LocationMessage, StickerMessage} = require './receive'
 {EventEmitter} = require 'events'
 util = require 'util'
 crypto = require 'crypto'
@@ -68,19 +69,20 @@ class LineAdapter extends Adapter
         # @robot.logger.debug 'msgObj instanceof SendSticker'
         # @robot.logger.debug msgObj instanceof SendSticker
         if msgObj and msgObj.type
-            return {
-                "type": msgObj.type,
-                "packageId": msgObj.packageId if msgObj.packageId?,
-                "stickerId": msgObj.stickerId if msgObj.stickerId?,
-                "title": msgObj.title if msgObj.title?,
-                "address": msgObj.address if msgObj.address?,
-                "latitude": msgObj.latitude if msgObj.latitude?,
-                "longitude": msgObj.longitude if msgObj.longitude?,
-                "originalContentUrl": msgObj.originalContentUrl if msgObj.originalContentUrl?,
-                "previewImageUrl": msgObj.previewImageUrl if msgObj.previewImageUrl?,
-                "duration": msgObj.duration if msgObj.duration?,
-                "text": msgObj.text if msgObj.text?,
+            obj = {
+                "type": msgObj.type
             }
+            obj.packageId = msgObj.packageId if msgObj.packageId?
+            obj.stickerId = msgObj.stickerId if msgObj.stickerId?
+            obj.title = msgObj.title if msgObj.title?
+            obj.address = msgObj.address if msgObj.address?
+            obj.latitude = msgObj.latitude if msgObj.latitude?
+            obj.longitude = msgObj.longitude if msgObj.longitude?
+            obj.originalContentUrl = msgObj.originalContentUrl if msgObj.originalContentUrl?
+            obj.previewImageUrl = msgObj.previewImageUrl if msgObj.previewImageUrl?
+            obj.duration = msgObj.duration if msgObj.duration?
+            obj.text = msgObj.text if msgObj.text?
+            return obj;
         else if typeof msgObj is 'string'
             return {
                 "type": "text",
@@ -107,12 +109,44 @@ class LineAdapter extends Adapter
             path: '/'
 
         bot = new LineStreaming(options, @robot)
-        bot.on 'message',
-            (sourceId, replyToken, text, id) ->
+        @streaming = bot
+        bot.on 'text',
+            (sourceId, replyToken, msgObj) ->
                 user = @robot.brain.userForId sourceId
                 # console.log util.inspect replyToken, false, null
-                message = new TextMessage(user, text, id)
+                message = new TextMessage(user, msgObj.text, msgObj.id)
                 message.replyToken = replyToken
+                self.receive message
+
+        bot.on 'image',
+            (sourceId, replyToken, msgObj) ->
+                user = @robot.brain.userForId sourceId
+                message = new ImageMessage(user, msgObj.id, replyToken)
+                self.receive message
+
+        bot.on 'video',
+            (sourceId, replyToken, msgObj) ->
+                user = @robot.brain.userForId sourceId
+                message = new VideoMessage(user, msgObj.id, replyToken)
+                self.receive message
+
+        bot.on 'audio',
+            (sourceId, replyToken, msgObj) ->
+                user = @robot.brain.userForId sourceId
+                message = new AudioMessage(user, msgObj.id, replyToken)
+                self.receive message
+
+        bot.on 'location',
+            (sourceId, replyToken, msgObj) ->
+                user = @robot.brain.userForId sourceId
+                message = new LocationMessage(user, msgObj.title, msgObj.address,
+                                msgObj.latitude, msgObj.longitude, msgObj.id, replyToken)
+                self.receive message
+
+        bot.on 'sticker',
+            (sourceId, replyToken, msgObj) ->
+                user = @robot.brain.userForId sourceId
+                message = new StickerMessage(user, msgObj.packageId, msgObj.stickerId, msgObj.id, replyToken)
                 self.receive message
 
         bot.listen()
@@ -123,10 +157,12 @@ class LineStreaming extends EventEmitter
         # router listen path: '/'
         @PATH = options.path
         @CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET
+        # @REPLY_URL = 'https://api.line.me/v2/bot/message/reply'
+        # @LINE_TOKEN = process.env.HUBOT_LINE_TOKEN
 
     listen: ->
         # if @IS_TESTING
-        #     @robot.router.get @PATH, (req, res) =>
+        # @robot.router.get @PATH, (req, res) =>
         #         console.log 'LISTEN'
         #         replyToken = 'testing token'
         #         eventType = 'message'
@@ -136,21 +172,22 @@ class LineStreaming extends EventEmitter
         #         # Can't handle other event now, discards them
         #         if eventType is 'message'
         #             @emit 'message', userId, replyToken, text, id
-        #         res.send 'OK'
+            # res.send 'OK'
 
         @robot.router.post @PATH, (req, res) =>
             @robot.logger.debug 'GET LINE MSG'
 
             # Event
-            event = req.body.events[0];
-            replyToken = event.replyToken;
-            eventType = event.type;
+            event = @getEvent req.body.events[0]
+            # event = req.body.events[0];
+            # replyToken = event.replyToken;
+            # eventType = event.type;
 
             # Message
-            message = @getMessage event
-            text = message.text
-            id = message.id
-            @robot.logger.debug "text: #{text}"
+            # message = @getMessage event
+            # text = message.text
+            # id = message.id
+            # @robot.logger.debug "text: #{event.message.text}"
 
             # Source
             source = @getSource event
@@ -166,18 +203,61 @@ class LineStreaming extends EventEmitter
                 return;
 
             # Pass Validate
-            # Can't handle other event now, discards them
-            if eventType is 'message'
-                @emit 'message', sourceId, replyToken, text, id
+            # Can't handle other event except message now, discards them
+            # by implement getcontent api, can retrieve msg content
+            # TODO: check msg here?
+            if event.type is 'message'
+                message = event.message
+                replyToken = event.replyToken
+                # console.log "event_type: #{event.type}, message_type: #{message.type}"
+                # @emit 'text', sourceId, replyToken, message
+                @emit message.type, sourceId, replyToken, message
 
             res.send 'OK'
 
+    # getcontent
+    # TODO:
+
+    # get profile
+    # TODO:
+
+    # send replyobj
+    # TODO:
+    # sendReply: (replyObj) ->
+    #     logger = @robot.logger
+    #     json = JSON.stringify(replyObj)
+    #     # console.log replyObj
+    #     @robot.http(@REPLY_URL)
+    #         .header('Content-Type', 'application/json')
+    #         .header('Authorization', "Bearer #{@LINE_TOKEN}")
+    #         .post(json) (err, res, body) ->
+    #             if err
+    #                 logger.error "Error sending msg: #{err}"
+    #                 return
+    #             if res.statusCode is 200
+    #                 logger.debug "Success, response body: #{body}"
+    #             else
+    #                 logger.debug "Error with statusCode: #{res.statusCode}"
+    #                 logger.debug "Body: #{body}"
+
+    # getEventObj
+    getEvent: (event)->
+        eventObj = {
+            "type": event.type,
+            "source": event.source
+        }
+        if event.type is "message"
+            eventObj.replyToken = event.replyToken;
+            eventObj.message = @getMessage event
+            return eventObj;
+
+        @robot.logger.debug 'Unsupport other event type yet'
+        return eventObj;
+
+
     # Message_Type = ['text']
     getMessage: (event)->
-        message =
-            text: event.message.text;
-            id: event.message.id;
-        return message
+        return event.message;
 
     # Source_Type = ['group', 'room', 'user']
     getSource: (event)->

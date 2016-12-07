@@ -44,6 +44,7 @@ class SendSticker extends SendObject
 
 module.exports = {
     SendObject
+    SendText
     SendImage
     SendVideo
     SendAudio
