@@ -64,7 +64,9 @@ Restart your robot, then send a message - `@botname hello` in line application. 
 
 Notice that we support only REPLY MESSAGE API for now, so use `res.reply()` or `res.emote()` only. `res.send()` will reserved until PUSH MESSAGE API is officially support.
 
-### Receive Message
+## Receive Message
+
+### Basic Text Message
 
 As mentioned in [Hubot's document](https://github.com/github/hubot/blob/master/docs/scripting.md#hearing-and-responding), if your robot's name is BB8, wake it up like below:
 
@@ -74,7 +76,45 @@ As mentioned in [Hubot's document](https://github.com/github/hubot/blob/master/d
 
 Unlike some hubot adapter, it won't response unless you include robot's name in the beginning of your message.
 
-### Message Type
+### Other Message Types
+
+As a chating robot, processing messages other than text message is not a easy task. But this adapter still provide assistance to those needs. 
+
+Types of supports: 
+
+- ImageMessage
+- VideoMessage
+- AudioMessage
+- LocationMessage
+- StickerMessage
+
+There is a example about how to listen other message types.
+
+```javascript
+var StickerMessage = require('hubot-line-messaging').StickerMessage
+
+// Echo the same sticker to Line
+// Customize a matcher for specific message type
+var matcher = function(message){
+    // Not implement listener, so should CatchAllMessage.message
+    var stickerMsg = message.message;
+    if (stickerMsg && stickerMsg.type && stickerMsg.type === 'sticker'){
+        if(stickerMsg.stickerId === '1'){
+            return true
+        }
+    }
+    return false;
+}
+robot.listen(matcher, function(res){
+    var stickerMessage = res.message.message;
+    // This line is necessary to prevent error
+    res.envelope.message = stickerMessage;
+    var sticker = new SendSticker(stickerMessage.stickerId, stickerMessage.packageId);
+    res.reply(sticker);
+});
+```
+
+##Respond Message
 
 There are several message type which is deffined in LINE's document. You can require one of those like below
 
