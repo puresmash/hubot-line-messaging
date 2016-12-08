@@ -78,9 +78,9 @@ Unlike some hubot adapter, it won't response unless you include robot's name in 
 
 ### Other Message Types
 
-As a chating robot, processing messages other than text message is not a easy task. But this adapter still provide assistance to those needs. 
+As a chating robot, processing messages other than text message is not a easy task. But this adapter still provide assistance to those needs.
 
-Types of supports: 
+Types of supports:
 
 - ImageMessage
 - VideoMessage
@@ -88,7 +88,7 @@ Types of supports:
 - LocationMessage
 - StickerMessage
 
-There is a example about how to listen other message types.
+There is a example about how to listen to other message types.
 
 ```javascript
 var StickerMessage = require('hubot-line-messaging').StickerMessage
@@ -174,7 +174,7 @@ res.reply(new SendVideo(originalContentUrl, previewImageUrl));
 
 ```javascript
 let originalContentUrl = 'https://example.com/original.m4a'
-let duration = 'duration': 240000
+let duration = 240000
 
 // Reply message
 res.reply(new SendAudio(originalContentUrl, previewImageUrl));
@@ -203,7 +203,7 @@ res.reply(location);
 <img src="./docs/sticker.png" style="width : 30%" />
 
 ```javascript
-// Generate a Sticker object
+// stickerId, packageId
 let sticker = new SendSticker('1', '1');
 
 // Send it as common way
