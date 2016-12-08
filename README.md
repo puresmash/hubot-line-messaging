@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/puresmash/hubot-line-messaging.svg?branch=master)](https://travis-ci.org/puresmash/hubot-line-messaging)
 [![release](https://img.shields.io/github/release/puresmash/hubot-line-messaging.svg?style=flat-square)](https://github.com/puresmash/hubot-line-messaging/releases)
 [![npm](https://img.shields.io/npm/v/hubot-line-messaging.svg?style=flat-square)](https://www.npmjs.com/package/hubot-line-messaging)
+[![codecov](https://codecov.io/gh/puresmash/hubot-line-messaging/branch/develop/graph/badge.svg)](https://codecov.io/gh/puresmash/hubot-line-messaging)
+
 
 This is a Hubot adapter for [Line Messaging API](https://business.line.me/zh-hant/services/bot) and it supports Line Business Center. This adapter currently only supports [Reply Message API](https://devdocs.line.me/en/?shell#reply-message), but will include more features recently.
 
