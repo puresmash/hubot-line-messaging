@@ -7,7 +7,7 @@ const path   = require("path");
 
 const Robot       = require("hubot/src/robot");
 const TextMessage = require("hubot/src/message").TextMessage;
-// var Adapter = require("hubot-adapter");
+
 const LineMessaging = require('index')
 const SendSticker = LineMessaging.SendSticker;
 const SendLocation = LineMessaging.SendLocation;
@@ -26,39 +26,12 @@ describe('Test Line Adapter', function() {
         // Hubot will require(hubot-adapter) in robot.coffee
         // Ensure NODE_PATH is set to root (NODE_PATH=.)
         robot = new Robot(null, 'adapter', true, 'TestHubot');
-
         robot.adapter.on("connected", function() {
             // console.log('adapter connected');
-            /**
-             * #1 load hubot script from ./test/robot.js
-             */
-            // robot.loadFile(
-            //     path.resolve(
-            //         path.join("test")
-            //     ),
-            //     "robot.js"
-            // );
-
-            /**
-             * #2 Dynamic specify hubot script
-             */
-
-            // robot.respond(/hello/i, function(res){
-            //     res.reply('world');
-            // });
-
-            // create a user
-            // user = robot.brain.userForId("1", {
-            //     name: "mocha",
-            //     room: "#mocha"
-            // });
             user = robot.brain.userForId("1");
-
             adapter = robot.adapter;
-
             done();
         });
-
         robot.run();
     });
 
@@ -77,7 +50,6 @@ describe('Test Line Adapter', function() {
             });
 
             it("should reply a text", function(done) {
-                // var spy = sinon.spy(adapter, '_sendReply');
                 const stub = sinon.stub(adapter, '_sendReply');
                 const expected = {
                     "replyToken": "testing token",
@@ -252,16 +224,30 @@ describe('Test Line Adapter', function() {
             autoPassValidate.restore();
         });
 
-        // //
-        // describe('with wrong x-line-signature', ()=>{
-        //     before((done)=>{
-        //         autoPassValidate.returns(false);
-        //         done();
-        //     });
-        //     it('should stop propagation', (done)=>{
         //
-        //     });
-        // });
+        describe('with wrong x-line-signature', ()=>{
+            let json;
+            before((done)=>{
+                autoPassValidate.returns(false);
+                json = JSON.stringify(input);
+                done();
+            });
+            it('should stop propagation', (done)=>{
+                const stub = sinon.stub(robot.logger, 'error');
+                httpRequest.post(json);
+                setTimeout(function(){
+                    sinon.assert.calledTwice(stub);
+                    sinon.assert.calledWith(stub, "Failed validate, result: false");
+                    stub.restore();
+                    done();
+                }, 30);
+
+            });
+            after((done)=>{
+                autoPassValidate.returns(true);
+                done();
+            })
+        });
 
         describe('with text message content', function() {
             let json;
