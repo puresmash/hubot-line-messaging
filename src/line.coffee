@@ -199,6 +199,7 @@ class LineStreaming extends EventEmitter
             unless isValid
                 @robot.logger.error "Failed validate, result: #{isValid}"
                 @robot.logger.error "headerSignature: #{headerSignature}"
+                res.statusCode = 403
                 res.send 'Auth Failed'
                 return;
 
@@ -213,6 +214,7 @@ class LineStreaming extends EventEmitter
                 # @emit 'text', sourceId, replyToken, message
                 @emit message.type, sourceId, replyToken, message
 
+            res.statusCode = 200
             res.send 'OK'
 
     # getcontent

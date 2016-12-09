@@ -1,7 +1,7 @@
 
 "use strict";
 
-// var expect = require("chai").expect;
+var expect = require("chai").expect;
 const sinon = require("sinon");
 const path   = require("path");
 
@@ -232,16 +232,13 @@ describe('Test Line Adapter', function() {
                 json = JSON.stringify(input);
                 done();
             });
-            it('should stop propagation', (done)=>{
+            it('should return statusCode 403', (done)=>{
                 const stub = sinon.stub(robot.logger, 'error');
-                httpRequest.post(json);
-                setTimeout(function(){
-                    sinon.assert.calledTwice(stub);
-                    sinon.assert.calledWith(stub, "Failed validate, result: false");
+                httpRequest.post(json)((err, res, body)=>{
+                    expect(res.statusCode).to.equal(403);
                     stub.restore();
                     done();
-                }, 30);
-
+                });
             });
             after((done)=>{
                 autoPassValidate.returns(true);
@@ -274,20 +271,13 @@ describe('Test Line Adapter', function() {
                 }
 
                 adapter.streaming.once('text', spy);
-                // console.log(adapter.streaming.listenerCount('TextMessage'));
                 // Fire http
-                httpRequest.post(json)(function(err, res, body){
-                    if (res.statusCode == 200){
-                        // console.log('Fire Succeed');
-                        // console.log("Success, response body: " + body);
-                    }
-                });
-
-                setTimeout(function(){
+                httpRequest.post(json)((err, res, body)=>{
+                    expect(res.statusCode).to.equal(200);
                     sinon.assert.calledOnce(spy);
                     sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
                     done();
-                }, 30);
+                });
 
             });
         });
@@ -302,8 +292,6 @@ describe('Test Line Adapter', function() {
             };
 
             before(function(done){
-                // Because this test is only for testing LineStreaming.
-                // In oreder to avoid trigger the real flow, don't send text like "@Testhubot hello"
                 input.events[0].message = message;
                 json = JSON.stringify(input);
                 done();
@@ -318,22 +306,152 @@ describe('Test Line Adapter', function() {
                 }
 
                 adapter.streaming.once('sticker', spy);
-                // console.log(adapter.streaming.listenerCount('TextMessage'));
                 // Fire http
                 httpRequest.post(json)(function(err, res, body){
-                    if (res.statusCode == 200){
-                        // console.log('Fire Succeed');
-                        // console.log("Success, response body: " + body);
-                    }
-                });
-
-                setTimeout(function(){
+                    expect(res.statusCode).to.equal(200);
                     sinon.assert.calledOnce(spy);
                     sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
                     done();
-                }, 30);
+                });
 
             });
         });
+
+        describe('with image message content', function() {
+            let json;
+            const message = {
+                "id": "325708",
+                "type": "image"
+            };
+
+            before(function(done){
+                input.events[0].message = message;
+                json = JSON.stringify(input);
+                done();
+            });
+
+            it("should emit a image event to customize scripts", function(done) {
+                const spy = sinon.spy();
+                const expected = {
+                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
+                    "message": message
+                }
+
+                adapter.streaming.once('image', spy);
+                // Fire http
+                httpRequest.post(json)(function(err, res, body){
+                    expect(res.statusCode).to.equal(200);
+                    sinon.assert.calledOnce(spy);
+                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    done();
+                });
+
+            });
+        });
+
+        describe('with video message content', function() {
+            let json;
+            const message = {
+                "id": "325708",
+                "type": "video"
+            };
+
+            before(function(done){
+                input.events[0].message = message;
+                json = JSON.stringify(input);
+                done();
+            });
+
+            it("should emit a video event to customize scripts", function(done) {
+                const spy = sinon.spy();
+                const expected = {
+                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
+                    "message": message
+                }
+
+                adapter.streaming.once('video', spy);
+                // Fire http
+                httpRequest.post(json)(function(err, res, body){
+                    expect(res.statusCode).to.equal(200);
+                    sinon.assert.calledOnce(spy);
+                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    done();
+                });
+
+            });
+        });
+
+        describe('with audio message content', function() {
+            let json;
+            const message = {
+                "id": "325708",
+                "type": "audio"
+            };
+
+            before(function(done){
+                input.events[0].message = message;
+                json = JSON.stringify(input);
+                done();
+            });
+
+            it("should emit a audio event to customize scripts", function(done) {
+                const spy = sinon.spy();
+                const expected = {
+                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
+                    "message": message
+                }
+
+                adapter.streaming.once('audio', spy);
+                // Fire http
+                httpRequest.post(json)(function(err, res, body){
+                    expect(res.statusCode).to.equal(200);
+                    sinon.assert.calledOnce(spy);
+                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    done();
+                });
+
+            });
+        });
+
+        describe('with location message content', function() {
+            let json;
+            const message = {
+                "id": "325708",
+                "type": "location",
+                "title": "my location",
+                "address": "〒150-0002 東京都渋谷区渋谷２丁目２１−１",
+                "latitude": 35.65910807942215,
+                "longitude": 139.70372892916203
+            };
+
+            before(function(done){
+                input.events[0].message = message;
+                json = JSON.stringify(input);
+                done();
+            });
+
+            it("should emit a location event to customize scripts", function(done) {
+                const spy = sinon.spy();
+                const expected = {
+                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
+                    "message": message
+                }
+
+                adapter.streaming.once('location', spy);
+                // Fire http
+                httpRequest.post(json)(function(err, res, body){
+                    expect(res.statusCode).to.equal(200);
+                    sinon.assert.calledOnce(spy);
+                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    done();
+                });
+
+            });
+        });
+
     });
 })
