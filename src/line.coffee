@@ -197,8 +197,8 @@ class LineStreaming extends EventEmitter
             headerSignature = req.headers['x-line-signature'];
             isValid = @validateSignature req.body, headerSignature
             unless isValid
-                @robot.logger.debug "Failed validate, result: #{isValid}"
-                @robot.logger.debug "headerSignature: #{headerSignature}"
+                @robot.logger.error "Failed validate, result: #{isValid}"
+                @robot.logger.error "headerSignature: #{headerSignature}"
                 res.send 'Auth Failed'
                 return;
 
