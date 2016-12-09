@@ -20,7 +20,7 @@ class LineAdapter extends Adapter
 
     # Use send when you need to PUSH message
     send: (envelope, msgObjs...)->
-        @robot.logger.debug 'Send will be provided in future version'
+        @robot.logger.error 'Send will be provided in future version'
 
     # Use reply when you need to REPLY message
     reply: (envelope, msgObjs...) ->
@@ -253,7 +253,7 @@ class LineStreaming extends EventEmitter
             eventObj.message = @getMessage event
             return eventObj;
 
-        @robot.logger.debug 'Unsupport other event type yet'
+        @robot.logger.error 'Unsupport other event type yet'
         return eventObj;
 
 

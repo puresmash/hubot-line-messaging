@@ -1,7 +1,7 @@
 
 "use strict";
 
-var expect = require("chai").expect;
+const expect = require("chai").expect;
 const sinon = require("sinon");
 const path   = require("path");
 
@@ -42,6 +42,10 @@ describe('Test Line Adapter', function() {
     describe('when receiving Text Message from adapter', function(){
         // Reply a Text
         describe('giving Text Respond Rule defined', function(){
+            const type = 'text';
+            const replyToken = 'testing token';
+            const text = 'world';
+
             before(function(done){
                 robot.respond(/hello/i, function(res){
                     res.reply('world');
@@ -52,16 +56,16 @@ describe('Test Line Adapter', function() {
             it("should reply a text", function(done) {
                 const stub = sinon.stub(adapter, '_sendReply');
                 const expected = {
-                    "replyToken": "testing token",
+                    replyToken,
                     "messages": [{
-                        "type": "text",
-                        "text": "world"
+                        type,
+                        text
                     }]
                 }
 
                 // Receive TextMessage
                 let msg = new TextMessage(user, "@TestHubot hello");
-                msg.replyToken = 'testing token';
+                msg.replyToken = replyToken;
 
                 robot.receive(msg, function() {
                     sinon.assert.calledOnce(stub);
@@ -73,10 +77,15 @@ describe('Test Line Adapter', function() {
         });
         // Reply a Sticker
         describe('giving Sticker Respond Rule defined', function() {
+            const type = 'sticker';
+            const replyToken = 'testing token';
+            const packageId = '1';
+            const stickerId = '1';
+
             before(function(done){
                 robot.respond(/sticker (.*)/i, function(res){
                     let keyword = res.match[1];
-                    let sticker = new SendSticker(keyword, '1');
+                    let sticker = new SendSticker(keyword, packageId);
                     res.reply(sticker);
                 });
                 done();
@@ -85,16 +94,16 @@ describe('Test Line Adapter', function() {
             it("should reply a sticker", function(done) {
                 const stub = sinon.stub(adapter, '_sendReply');
                 const expected = {
-                    "replyToken": "testing token",
+                    replyToken,
                     "messages": [{
-                        "type": "sticker",
-                        "packageId": "1",
-                        "stickerId": "1"
+                        type,
+                        packageId,
+                        stickerId
                     }]
                 }
 
                 let msg = new TextMessage(user, "@TestHubot sticker 1");
-                msg.replyToken = 'testing token';
+                msg.replyToken = replyToken;
 
                 robot.receive(msg, function(){
                     sinon.assert.calledOnce(stub);
@@ -107,16 +116,16 @@ describe('Test Line Adapter', function() {
         });
         // Reply a Location
         describe('giving Location Respond Rule defined', function() {
+            const type = 'location';
+            const replyToken = 'testing token';
+            const title = 'ＬＩＮＥ';
+            const address = '〒150-0002 東京都渋谷区渋谷２丁目２１−１';
+            const latitude = 35.65910807942215;
+            const longitude = 139.70372892916203;
+
             before(function(done){
                 robot.respond(/location/i, function(res){
-                    // ＬＩＮＥ株式会社
-                    let location =
-                        new SendLocation(
-                            'ＬＩＮＥ',
-                            '〒150-0002 東京都渋谷区渋谷２丁目２１−１',
-                            35.65910807942215,
-                            139.70372892916203
-                        );
+                    let location = new SendLocation(title, address, latitude, longitude);
                     res.emote(location);
                 });
                 done();
@@ -125,18 +134,18 @@ describe('Test Line Adapter', function() {
             it("should reply a location", function(done) {
                 const stub = sinon.stub(adapter, '_sendReply');
                 const expected = {
-                    "replyToken": "testing token",
+                    replyToken,
                     "messages": [{
-                        "type": "location",
-                        "title": "ＬＩＮＥ",
-                        "address": "〒150-0002 東京都渋谷区渋谷２丁目２１−１",
-                        "latitude": 35.65910807942215,
-                        "longitude": 139.70372892916203
+                        type,
+                        title,
+                        address,
+                        latitude,
+                        longitude
                     }]
                 }
 
                 let msg = new TextMessage(user, "@TestHubot location");
-                msg.replyToken = 'testing token';
+                msg.replyToken = replyToken;
 
                 robot.receive(msg, function(){
                     sinon.assert.calledOnce(stub);
@@ -147,6 +156,118 @@ describe('Test Line Adapter', function() {
 
             });
         });
+        // Reply a Image
+        describe('giving Image Respond Rule defined', function() {
+            const type = 'image';
+            const replyToken = 'testing token';
+            const originalContentUrl = 'https://placeholdit.imgix.net/~text?txtsize=34&txt=360%C3%97360&w=360&h=360';
+            const previewImageUrl = 'https://placeholdit.imgix.net/~text?txtsize=23&txt=240%C3%97240&w=240&h=240';
+
+            before(function(done){
+                robot.respond(/image/i, function(res){
+                    res.reply(new SendImage(originalContentUrl, previewImageUrl));
+                });
+                done();
+            });
+
+            it("should reply a image", function(done) {
+                const stub = sinon.stub(adapter, '_sendReply');
+                const expected = {
+                    replyToken,
+                    "messages": [{
+                        type,
+                        originalContentUrl,
+                        previewImageUrl,
+                    }]
+                }
+
+                let msg = new TextMessage(user, "@TestHubot image");
+                msg.replyToken = replyToken;
+
+                robot.receive(msg, function(){
+                    sinon.assert.calledOnce(stub);
+                    sinon.assert.calledWith(stub, expected);
+                    stub.restore();
+                    done();
+                });
+
+            });
+        });
+        // Reply a Video
+        describe('giving Video Respond Rule defined', function() {
+            const type = 'video';
+            const replyToken = 'testing token';
+            const originalContentUrl = 'https://example.com/original.mp4';
+            const previewImageUrl = 'https://example.com/preview.jpg';
+
+            before(function(done){
+                robot.respond(/video/i, function(res){
+                    res.reply(new SendVideo(originalContentUrl, previewImageUrl));
+                });
+                done();
+            });
+
+            it("should reply a video", function(done) {
+                const stub = sinon.stub(adapter, '_sendReply');
+                const expected = {
+                    replyToken,
+                    "messages": [{
+                        type,
+                        originalContentUrl,
+                        previewImageUrl,
+                    }]
+                }
+
+                let msg = new TextMessage(user, "@TestHubot video");
+                msg.replyToken = replyToken;
+
+                robot.receive(msg, function(){
+                    sinon.assert.calledOnce(stub);
+                    sinon.assert.calledWith(stub, expected);
+                    stub.restore();
+                    done();
+                });
+
+            });
+        });
+        // Reply a Audio
+        describe('giving Audio Respond Rule defined', function() {
+            const type = 'audio';
+            const replyToken = 'testing token';
+            const originalContentUrl = 'https://example.com/original.m4a';
+            const duration = 240000;
+
+            before(function(done){
+                robot.respond(/audio/i, function(res){
+                    res.reply(new SendAudio(originalContentUrl, duration));
+                });
+                done();
+            });
+
+            it("should reply a audio", function(done) {
+                const stub = sinon.stub(adapter, '_sendReply');
+                const expected = {
+                    replyToken,
+                    "messages": [{
+                        type,
+                        originalContentUrl,
+                        duration,
+                    }]
+                }
+
+                let msg = new TextMessage(user, "@TestHubot audio");
+                msg.replyToken = replyToken;
+
+                robot.receive(msg, function(){
+                    sinon.assert.calledOnce(stub);
+                    sinon.assert.calledWith(stub, expected);
+                    stub.restore();
+                    done();
+                });
+
+            });
+        });
+
     });
 
     describe('when receiving Sticker Message from adapter', function(){

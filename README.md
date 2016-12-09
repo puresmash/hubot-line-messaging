@@ -70,7 +70,7 @@ Restart your robot, then send a message - `@botname hello` in line application. 
 
 Notice that we support only REPLY MESSAGE API for now, so use `res.reply()` or `res.emote()` only. `res.send()` will reserved until PUSH MESSAGE API is officially supported.
 
-## Receive Message
+## Receive Message from LINE
 
 ### Basic Text Message
 
@@ -120,7 +120,7 @@ robot.listen(matcher, function(res){
 });
 ```
 
-##Respond Message
+##Respond Message to LINE
 
 There are several message type which is defined in LINE's document. You can require one of those like below
 
