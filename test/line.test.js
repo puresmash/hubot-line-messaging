@@ -2,25 +2,25 @@
 "use strict";
 
 // var expect = require("chai").expect;
-var sinon = require("sinon");
-var path   = require("path");
+const sinon = require("sinon");
+const path   = require("path");
 
-var Robot       = require("hubot/src/robot");
-var TextMessage = require("hubot/src/message").TextMessage;
+const Robot       = require("hubot/src/robot");
+const TextMessage = require("hubot/src/message").TextMessage;
 // var Adapter = require("hubot-adapter");
-var LineMessaging = require('index')
-var SendSticker = LineMessaging.SendSticker;
-var SendLocation = LineMessaging.SendLocation;
-var SendImage = LineMessaging.SendImage;
-var SendVideo = LineMessaging.SendVideo;
-var SendText = LineMessaging.SendText;
-var SendAudio = LineMessaging.SendAudio;
-var StickerMessage = LineMessaging.StickerMessage;
+const LineMessaging = require('index')
+const SendSticker = LineMessaging.SendSticker;
+const SendLocation = LineMessaging.SendLocation;
+const SendImage = LineMessaging.SendImage;
+const SendVideo = LineMessaging.SendVideo;
+const SendText = LineMessaging.SendText;
+const SendAudio = LineMessaging.SendAudio;
+const StickerMessage = LineMessaging.StickerMessage;
 
 describe('Test Line Adapter', function() {
-    var robot;
-    var user;
-    var adapter;
+    let robot;
+    let user;
+    let adapter;
 
     before(function(done){
         // Hubot will require(hubot-adapter) in robot.coffee
@@ -32,18 +32,12 @@ describe('Test Line Adapter', function() {
             /**
              * #1 load hubot script from ./test/robot.js
              */
-            // only load scripts we absolutely need
-            // process.env.HUBOT_AUTH_ADMIN = "1";
             // robot.loadFile(
             //     path.resolve(
             //         path.join("test")
             //     ),
             //     "robot.js"
-            //     // ,"auth.coffee"
             // );
-            // load the module under test and configure it for the
-            // robot.  This is in place of external-scripts
-            // require("index.coffee")(robot);
 
             /**
              * #2 Dynamic specify hubot script
@@ -73,6 +67,7 @@ describe('Test Line Adapter', function() {
     });
 
     describe('when receiving Text Message from adapter', function(){
+        // Reply a Text
         describe('giving Text Respond Rule defined', function(){
             before(function(done){
                 robot.respond(/hello/i, function(res){
@@ -83,8 +78,8 @@ describe('Test Line Adapter', function() {
 
             it("should reply a text", function(done) {
                 // var spy = sinon.spy(adapter, '_sendReply');
-                var stub = sinon.stub(adapter, '_sendReply');
-                var expected = {
+                const stub = sinon.stub(adapter, '_sendReply');
+                const expected = {
                     "replyToken": "testing token",
                     "messages": [{
                         "type": "text",
@@ -93,19 +88,18 @@ describe('Test Line Adapter', function() {
                 }
 
                 // Receive TextMessage
-                var msg = new TextMessage(user, "@TestHubot hello");
+                let msg = new TextMessage(user, "@TestHubot hello");
                 msg.replyToken = 'testing token';
 
                 robot.receive(msg, function() {
                     sinon.assert.calledOnce(stub);
                     sinon.assert.calledWith(stub, expected);
-                    // console.log('test1 done');
                     stub.restore();
                     done();
                 });
             });
         });
-
+        // Reply a Sticker
         describe('giving Sticker Respond Rule defined', function() {
             before(function(done){
                 robot.respond(/sticker (.*)/i, function(res){
@@ -117,8 +111,8 @@ describe('Test Line Adapter', function() {
             });
 
             it("should reply a sticker", function(done) {
-                var stub = sinon.stub(adapter, '_sendReply');
-                var expected = {
+                const stub = sinon.stub(adapter, '_sendReply');
+                const expected = {
                     "replyToken": "testing token",
                     "messages": [{
                         "type": "sticker",
@@ -127,13 +121,54 @@ describe('Test Line Adapter', function() {
                     }]
                 }
 
-                var msg = new TextMessage(user, "@TestHubot sticker 1");
+                let msg = new TextMessage(user, "@TestHubot sticker 1");
                 msg.replyToken = 'testing token';
 
                 robot.receive(msg, function(){
                     sinon.assert.calledOnce(stub);
                     sinon.assert.calledWith(stub, expected);
-                    // console.log('test2 done');
+                    stub.restore();
+                    done();
+                });
+
+            });
+        });
+        // Reply a Location
+        describe('giving Location Respond Rule defined', function() {
+            before(function(done){
+                robot.respond(/location/i, function(res){
+                    // ＬＩＮＥ株式会社
+                    let location =
+                        new SendLocation(
+                            'ＬＩＮＥ',
+                            '〒150-0002 東京都渋谷区渋谷２丁目２１−１',
+                            35.65910807942215,
+                            139.70372892916203
+                        );
+                    res.emote(location);
+                });
+                done();
+            });
+
+            it("should reply a location", function(done) {
+                const stub = sinon.stub(adapter, '_sendReply');
+                const expected = {
+                    "replyToken": "testing token",
+                    "messages": [{
+                        "type": "location",
+                        "title": "ＬＩＮＥ",
+                        "address": "〒150-0002 東京都渋谷区渋谷２丁目２１−１",
+                        "latitude": 35.65910807942215,
+                        "longitude": 139.70372892916203
+                    }]
+                }
+
+                let msg = new TextMessage(user, "@TestHubot location");
+                msg.replyToken = 'testing token';
+
+                robot.receive(msg, function(){
+                    sinon.assert.calledOnce(stub);
+                    sinon.assert.calledWith(stub, expected);
                     stub.restore();
                     done();
                 });
@@ -144,7 +179,7 @@ describe('Test Line Adapter', function() {
 
     describe('when receiving Sticker Message from adapter', function(){
         before(function(done){
-            var matcher = function(message){
+            const matcher = function(message){
                 // Not implement listenrt, so should CatchAllMessage.message
                 if (message.message instanceof StickerMessage){
                     // console.log('INTO MATCHER');
@@ -153,9 +188,9 @@ describe('Test Line Adapter', function() {
                 return false;
             }
             robot.listen(matcher, function(res){
-                var stickerMessage = res.message.message;
+                const stickerMessage = res.message.message;
                 res.envelope.message = stickerMessage;
-                var sticker = new SendSticker(stickerMessage.stickerId, stickerMessage.packageId);
+                const sticker = new SendSticker(stickerMessage.stickerId, stickerMessage.packageId);
                 res.reply(sticker);
             });
             done();
@@ -163,8 +198,8 @@ describe('Test Line Adapter', function() {
 
         describe('giving Sticker Respond Rule defined', function(){
             it('should reply a sticker', function(done){
-                var stub = sinon.stub(adapter, '_sendReply');
-                var expected = {
+                let stub = sinon.stub(adapter, '_sendReply');
+                const expected = {
                     "replyToken": "testing token",
                     "messages": [{
                         "type": "sticker",
@@ -173,7 +208,7 @@ describe('Test Line Adapter', function() {
                     }]
                 }
 
-                var msg = new StickerMessage(user, "1", "1", "mid", "testing token");
+                const msg = new StickerMessage(user, "1", "1", "mid", "testing token");
 
                 robot.receive(msg, function(){
                     sinon.assert.calledOnce(stub);
@@ -186,9 +221,9 @@ describe('Test Line Adapter', function() {
     });
 
     describe('when hear a Webhook request from Line', function() {
-        var httpRequest;
-        var autoPassValidate;
-        var input;
+        let httpRequest;
+        let autoPassValidate;
+        let input;
 
         before(function(done){
             autoPassValidate = sinon.stub(adapter.streaming, 'validateSignature').returns(true);
@@ -217,9 +252,20 @@ describe('Test Line Adapter', function() {
             autoPassValidate.restore();
         });
 
+        // //
+        // describe('with wrong x-line-signature', ()=>{
+        //     before((done)=>{
+        //         autoPassValidate.returns(false);
+        //         done();
+        //     });
+        //     it('should stop propagation', (done)=>{
+        //
+        //     });
+        // });
+
         describe('with text message content', function() {
-            var json;
-            var message = {
+            let json;
+            const message = {
                 "id": "325708",
                 "type": "text",
                 "text": "Hello, world"
@@ -234,8 +280,8 @@ describe('Test Line Adapter', function() {
             });
 
             it("should emit a text event to customize scripts", function(done) {
-                var spy = sinon.spy();
-                var expected = {
+                const spy = sinon.spy();
+                const expected = {
                     "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
                     "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
                     "message": message
@@ -255,14 +301,14 @@ describe('Test Line Adapter', function() {
                     sinon.assert.calledOnce(spy);
                     sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
                     done();
-                }, 20);
+                }, 30);
 
             });
         });
 
         describe('with sticker message content', function() {
-            var json;
-            var message = {
+            let json;
+            const message = {
                 "id": "325708",
                 "type": "sticker",
                 "packageId": "1",
@@ -278,8 +324,8 @@ describe('Test Line Adapter', function() {
             });
 
             it("should emit a sticker event to customize scripts", function(done) {
-                var spy = sinon.spy();
-                var expected = {
+                const spy = sinon.spy();
+                const expected = {
                     "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
                     "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
                     "message": message
@@ -299,10 +345,9 @@ describe('Test Line Adapter', function() {
                     sinon.assert.calledOnce(spy);
                     sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
                     done();
-                }, 20);
+                }, 30);
 
             });
         });
-
     });
 })
