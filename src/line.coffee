@@ -69,6 +69,7 @@ class LineAdapter extends Adapter
         # @robot.logger.debug 'msgObj instanceof SendSticker'
         # @robot.logger.debug msgObj instanceof SendSticker
         if msgObj and msgObj.type
+            # text, sticker, image. audio, video, location, imagemap(X), template
             obj = {
                 "type": msgObj.type
             }
@@ -82,6 +83,8 @@ class LineAdapter extends Adapter
             obj.previewImageUrl = msgObj.previewImageUrl if msgObj.previewImageUrl?
             obj.duration = msgObj.duration if msgObj.duration?
             obj.text = msgObj.text if msgObj.text?
+            obj.altText = msgObj.altText if msgObj.altText?
+            obj.template = @getTemplate(msgObj.template) if msgObj.template?
             return obj;
         else if typeof msgObj is 'string'
             return {
@@ -89,18 +92,32 @@ class LineAdapter extends Adapter
                 "text": msgObj
             }
 
-    # forTesting: (fn) ->
-    #     @reply = fn
-    # _formatTextObj: (token, msg) ->
-    #     return {
-    #         "replyToken": token,
-    #         "messages":[
-    #             {
-    #                 "type": "text",
-    #                 "text": msg
-    #             }
-    #         ]
-    #     }
+    getTemplate: (template) ->
+        # buttons, confirm, carousel
+        obj = {
+            type: template.type
+        }
+        obj.thumbnailImageUrl = msgObj.thumbnailImageUrl if msgObj.thumbnailImageUrl?
+        obj.title = msgObj.title if msgObj.title?
+        obj.text = msgObj.text if msgObj.text?
+        obj.actions = @getActions(msgObj.actions) if msgObj.actions?
+        return obj
+
+    getActions: (actionAry) ->
+        ary = []
+        ary.push @getAction(action) for action in actionAry
+        return ary
+
+    getAction: (action) ->
+        # postback, message, uri
+        obj = {
+            type: action.type
+        }
+        obj.label = msgObj.label if msgObj.label?
+        obj.data = msgObj.data if msgObj.data?
+        obj.text = msgObj.text if msgObj.text?
+        obj.uri = msgObj.uri if msgObj.uri?
+        return obj
 
     run: ->
         self = @
