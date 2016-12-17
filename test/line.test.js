@@ -16,6 +16,7 @@ const SendVideo = LineMessaging.SendVideo;
 const SendText = LineMessaging.SendText;
 const SendAudio = LineMessaging.SendAudio;
 const StickerMessage = LineMessaging.StickerMessage;
+const BuildTemplateMessage = LineMessaging.BuildTemplateMessage;
 
 describe('Test Line Adapter', function() {
     let robot;
@@ -267,8 +268,62 @@ describe('Test Line Adapter', function() {
 
             });
         });
-
     });
+
+    describe('when build with BuildTemplateMessage', ()=>{
+        it('should return a template message', (done)=>{
+            const expected = {
+                "type": "template",
+                "altText": "this is a buttons template",
+                "template": {
+                    "type": "buttons",
+                    "thumbnailImageUrl": "https://example.com/bot/images/image.jpg",
+                    "title": "Menu",
+                    "text": "Please select",
+                    "actions": [
+                      {
+                        "type": "postback",
+                        "label": "Buy",
+                        "data": "action=buy&itemid=123"
+                      },
+                      {
+                        "type": "postback",
+                        "label": "Add to cart",
+                        "data": "action=add&itemid=123"
+                      },
+                      {
+                        "type": "uri",
+                        "label": "View detail",
+                        "uri": "http://example.com/page/123"
+                      }
+                    ]
+                }
+            }
+
+            let tmsg = BuildTemplateMessage
+            .init('this is a buttons template')
+            .buttons({
+                "thumbnailImageUrl": "https://example.com/bot/images/image.jpg",
+                "title": "Menu",
+                "text": "Please select"
+            })
+            .postbackAction({
+                "label": "Buy",
+                "data": "action=buy&itemid=123"
+            })
+            .postbackAction({
+                "label": "Add to cart",
+                "data": "action=add&itemid=123"
+            })
+            .uriAction({
+                "label": "View detail",
+                "uri": "http://example.com/page/123"
+            })
+            .build();
+
+            expect(tmsg).to.deep.equal(expected);
+        })
+    })
 
     describe('when receiving Sticker Message from adapter', function(){
         before(function(done){

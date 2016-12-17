@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm run mocha && istanbul report text-summary lcov",
     "mocha": "NODE_PATH=. mocha --compilers coffee:coffee-script/register --require coffee-coverage/register-istanbul",
-    "debug-for-test": "NODE_PATH=. HUBOT_LOG_LEVEL=debug mocha --compilers coffee:coffee-script",
+    "debug-for-test": "NODE_PATH=. HUBOT_LOG_LEVEL=debug mocha --compilers coffee:coffee-script/register",
     "codecov": "codecov"
   },
   "dependencies": {
