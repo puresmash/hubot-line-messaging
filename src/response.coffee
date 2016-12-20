@@ -137,6 +137,5 @@ module.exports = {
     SendAudio
     SendLocation
     SendSticker
-    SendTemplate
     BuildTemplateMessage
 }
