@@ -101,34 +101,6 @@ class BuildTemplateMessage
         @_addAction(obj)
         return @
 
-    postbackAction: (input)->
-        obj = {
-            type: 'postback',
-        }
-        obj.label = input.label if input.label?
-        obj.data = input.data if input.data?
-        obj.text = input.text if input.text?
-        @_addAction(obj)
-        return @
-
-    messageAction: (input)->
-        obj = {
-            type: 'message'
-        }
-        obj.label = input.label if input.label?
-        obj.text = input.text if input.text?
-        @_addAction(obj)
-        return @
-
-    uriAction: (input)->
-        obj = {
-            type: 'uri',
-        }
-        obj.label = input.label if input.label?
-        obj.uri = input.uri if input.uri?
-        @_addAction(obj)
-        return @
-
     _addAction: (obj)->
         @options.actions = [] if !@options.actions
         @options.actions.push obj
