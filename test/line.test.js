@@ -4,6 +4,7 @@
 const expect = require("chai").expect;
 const sinon = require("sinon");
 const path   = require("path");
+const util = require("util");
 
 const Robot       = require("hubot/src/robot");
 const TextMessage = require("hubot/src/message").TextMessage;
@@ -341,6 +342,7 @@ describe('Test Line Adapter', function() {
 
                 robot.receive(msg, function(){
                     sinon.assert.calledOnce(stub);
+                    // console.log(JSON.stringify(stub.args[0][0]));
                     sinon.assert.calledWith(stub, expected);
                     stub.restore();
                     done();

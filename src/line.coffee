@@ -84,7 +84,7 @@ class LineAdapter extends Adapter
             obj.duration = msgObj.duration if msgObj.duration?
             obj.text = msgObj.text if msgObj.text?
             obj.altText = msgObj.altText if msgObj.altText?
-            obj.template = @getTemplate(msgObj.template) if msgObj.template?
+            obj.template = msgObj.template if msgObj.template?
             return obj;
         else if typeof msgObj is 'string'
             return {
@@ -92,32 +92,33 @@ class LineAdapter extends Adapter
                 "text": msgObj
             }
 
-    getTemplate: (template) ->
-        # buttons, confirm, carousel
-        obj = {
-            type: template.type
-        }
-        obj.thumbnailImageUrl = template.thumbnailImageUrl if template.thumbnailImageUrl?
-        obj.title = template.title if template.title?
-        obj.text = template.text if template.text?
-        obj.actions = @getActions(template.actions) if template.actions?
-        return obj
-
-    getActions: (actionAry) ->
-        ary = []
-        ary.push @getAction(action) for action in actionAry
-        return ary
-
-    getAction: (action) ->
-        # postback, message, uri
-        obj = {
-            type: action.type
-        }
-        obj.label = action.label if action.label?
-        obj.data = action.data if action.data?
-        obj.text = action.text if action.text?
-        obj.uri = action.uri if action.uri?
-        return obj
+    # getTemplate: (template) ->
+    #     # The thumbnailImageUrl and title fields are optional.
+    #     # buttons, confirm, carousel
+    #     obj = {
+    #         type: template.type
+    #     }
+    #     obj.thumbnailImageUrl = template.thumbnailImageUrl if template.thumbnailImageUrl?
+    #     obj.title = template.title if template.title?
+    #     obj.text = template.text
+    #     obj.actions = @getActions(template.actions) if template.actions?
+    #     return obj
+    #
+    # getActions: (actionAry) ->
+    #     ary = []
+    #     ary.push @getAction(action) for action in actionAry
+    #     return ary
+    #
+    # getAction: (action) ->
+    #     # postback, message, uri
+    #     obj = {
+    #         type: action.type
+    #     }
+    #     obj.label = action.label if action.label?
+    #     obj.data = action.data if action.data?
+    #     obj.text = action.text if action.text?
+    #     obj.uri = action.uri if action.uri?
+    #     return obj
 
     run: ->
         self = @

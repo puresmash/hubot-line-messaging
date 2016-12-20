@@ -114,9 +114,11 @@ class BuildTemplateMessage
                 actions: @options.actions
             }
         }
+        # The thumbnailImageUrl and title fields are optional.
+        # columns only appear when carousel
         obj.template.thumbnailImageUrl = @options.templateObj.thumbnailImageUrl if @options.templateObj.thumbnailImageUrl?
         obj.template.title = @options.templateObj.title if @options.templateObj.title?
-        obj.template.text = @options.templateObj.text if @options.templateObj.text?
+        obj.template.text = @options.templateObj.text
         obj.template.columns = @options.templateObj.columns if @options.templateObj.columns?
 
         return obj
