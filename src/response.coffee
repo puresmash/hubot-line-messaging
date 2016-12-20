@@ -81,6 +81,26 @@ class BuildTemplateMessage
     _addCarouselColumn: (thumbnailImageUrl, title, text)->
         @options.templateObj.columns.push { thumbnailImageUrl, title, text }
 
+    action: (type, input)->
+        obj = {}
+        if type is 'postback'
+            obj.type = 'postback'
+            obj.label = input.label if input.label?
+            obj.data = input.data if input.data?
+            obj.text = input.text if input.text?
+        else if type is 'message'
+            obj.type = 'message'
+            obj.label = input.label if input.label?
+            obj.text = input.text if input.text?
+        else if type is 'uri'
+            obj.type = 'uri'
+            obj.label = input.label if input.label?
+            obj.uri = input.uri if input.uri?
+        else
+            throw new Error("Un-supported action type - #{type}, should choose in (postback, message, uri)")
+        @_addAction(obj)
+        return @
+
     postbackAction: (input)->
         obj = {
             type: 'postback',
