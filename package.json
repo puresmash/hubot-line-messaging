@@ -1,6 +1,6 @@
 {
   "name": "hubot-line-messaging",
-  "version": "0.5.0-beta",
+  "version": "0.5.0",
   "author": "swat <puresmash@gmail.com>",
   "description": "A Hubot adapter for Line Message API",
   "main": "./index",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "hubot": "^2.19.0",
+    "lodash": "^4.17.2",
     "parent-require": "^1.0.0"
   },
   "peerDependencies": {
