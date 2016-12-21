@@ -70,9 +70,9 @@ Restart your robot, then send a message - `@botname hello` in line application. 
 
 Notice that we support only REPLY MESSAGE API for now, so use `res.reply()` or `res.emote()` only. `res.send()` will reserved until PUSH MESSAGE API is officially supported.
 
-## Receive Message from LINE
+## Listen Message from LINE
 
-### Basic Text Message
+### Text Message
 
 As mentioned in [Hubot's document](https://github.com/github/hubot/blob/master/docs/scripting.md#hearing-and-responding), if your robot's name is BB8, wake it up like below:
 
@@ -80,11 +80,9 @@ As mentioned in [Hubot's document](https://github.com/github/hubot/blob/master/d
 - BB8, ${keyword}
 - BB8: ${keyword}
 
-Unlike some hubot adapter, it won't response unless you include robot's name in the beginning of your message.
+It won't response unless you include robot's name in the beginning of your message.
 
-### Other Message Types
-
-As a chating robot, processing messages other than text message is not a easy task. But this adapter still provide assistance to those needs.
+### Complicated Message
 
 Types of supports:
 
@@ -94,7 +92,7 @@ Types of supports:
 - LocationMessage
 - StickerMessage
 
-There is a example about how to listen to other message types.
+The following is an example of how to listen and respond to complicated message types (sticker, location, image, ...etc).
 
 ```javascript
 var StickerMessage = require('hubot-line-messaging').StickerMessage
@@ -120,7 +118,7 @@ robot.listen(matcher, function(res){
 });
 ```
 
-##Respond Message to LINE
+## Respond Basic Message to LINE
 
 There are several message type which is defined in LINE's document. You can require one of those like below
 
@@ -136,7 +134,7 @@ var SendText = LineMessaging.SendText
 
 **Text**
 
-Text is a basic message type, can call it in two way.
+Text is a common message type, can call it in two way.
 
 ```javascript
 // Generate a Text object
@@ -214,6 +212,89 @@ let sticker = new SendSticker('1', '1');
 
 // Send it as common way
 res.emote(sticker);
+```
+
+## Respond Template Message to LINE
+
+Template message is composed of template and actions.
+
+### Mix Template and Actions
+
+Template includes buttons, confirm and carousel. Actions includes postback, message and uri.
+
+**Buttons**
+
+<img src="./docs/template.png" style="width : 30%" />
+
+```javascript
+let msg = BuildTemplateMessage
+    .init('this is a template msg')
+    .buttons({
+        thumbnailImageUrl: 'https://github.com/puresmash/chatting-robot/blob/develope/docs/template.jpg?raw=true',
+        title: 'Template Message',
+        text: 'Let me google for you'
+    })
+    .action('uri', {
+        label: 'Open Google',
+        uri: 'https://www.google.com.tw/'
+    })
+    .action('uri', {
+        label: 'Adapter Link',
+        uri: 'https://github.com/puresmash/hubot-line-messaging'
+    })
+    .build();
+res.reply(msg);
+```
+
+**Confirm**
+
+<img src="./docs/confirm.png" style="width : 30%" />
+
+```javascript
+let msg = BuildTemplateMessage
+    .init('this is a confirm msg')
+    .confirm({
+        text: 'confirm?'
+    })
+    .action('uri', {
+        label: 'OK',
+        uri: 'https://www.google.com.tw/search?q=ok'
+    })
+    .action('message', {
+        label: 'Cancel',
+        text: 'cancel request'
+    })
+    .build();
+res.reply(msg);
+```
+
+**Carousel**
+
+<img src="./docs/carousel.png" style="width : 30%" />
+
+```javascript
+let msg = BuildTemplateMessage
+    .init('this is a carousel msg')
+    .carousel({
+        thumbnailImageUrl: 'https://github.com/puresmash/chatting-robot/blob/develope/docs/template.jpg?raw=true',
+        title: 'Carousel Message 1',
+        text: 'text1'
+    })
+    .action('uri', {
+        label: 'Open Google',
+        uri: 'https://www.google.com.tw/'
+    })
+    .carousel({
+        thumbnailImageUrl: 'https://github.com/puresmash/chatting-robot/blob/develope/docs/carousel.jpg?raw=true',
+        title: 'Carousel Message 2',
+        text: 'text2'
+    })
+    .action('uri', {
+        label: 'Adapter Link',
+        uri: 'https://github.com/puresmash/hubot-line-messaging'
+    })
+    .build();
+res.reply(msg);
 ```
 
 ## Remark

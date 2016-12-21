@@ -1,6 +1,6 @@
 
 # {Response} = require 'hubot'
-
+lodash = require 'lodash'
 # class Response
 #   constructor: (@robot, @message, @match) ->
 #     @envelope =
@@ -102,24 +102,35 @@ class BuildTemplateMessage
         return @
 
     _addAction: (obj)->
-        @options.actions = [] if !@options.actions
-        @options.actions.push obj
+        if (@options.templateObj.type isnt 'carousel')
+            @options.templateObj.actions = [] if !@options.templateObj.actions
+            @options.templateObj.actions.push obj
+        else
+            column = lodash.last(@options.templateObj.columns);
+            column.actions = [] if !column.actions
+            column.actions.push obj
+
 
     build: ()->
         obj = {
             type: @type,
             altText: @altText,
             template: {
-                type: @options.templateObj.type,
-                actions: @options.actions
+                type: @options.templateObj.type
             }
         }
         # The thumbnailImageUrl and title fields are optional.
         # columns only appear when carousel
         obj.template.thumbnailImageUrl = @options.templateObj.thumbnailImageUrl if @options.templateObj.thumbnailImageUrl?
         obj.template.title = @options.templateObj.title if @options.templateObj.title?
-        obj.template.text = @options.templateObj.text
-        obj.template.columns = @options.templateObj.columns if @options.templateObj.columns?
+        obj.template.text = @options.templateObj.text if @options.templateObj.text?
+
+        if @options.templateObj.type is 'carousel'
+            # For Carousel
+            obj.template.columns = @options.templateObj.columns if @options.templateObj.columns?
+        else
+            # For Buttons and Confirm
+            obj.template.actions = @options.templateObj.actions if @options.templateObj.actions?
 
         return obj
 

@@ -50,6 +50,7 @@ class LineAdapter extends Adapter
                 else
                     logger.debug "Error with statusCode: #{res.statusCode}"
                     logger.debug "Body: #{body}"
+                    logger.debug "Json: #{json}"
 
     _formatReplyObj: (token, msgAry) ->
         reply =  {
