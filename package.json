@@ -33,7 +33,7 @@
     "adapter"
   ],
   "engines": {
-    "node": "5.9.1"
+    "node": ">=6.0"
   },
   "license": "MIT",
   "directories": {
