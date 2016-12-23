@@ -1,6 +1,6 @@
 {
   "name": "hubot-line-messaging",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "swat <puresmash@gmail.com>",
   "description": "A Hubot adapter for Line Message API",
   "main": "./index",
@@ -33,7 +33,7 @@
     "adapter"
   ],
   "engines": {
-    "node": "5.9.1"
+    "node": ">=6.0"
   },
   "license": "MIT",
   "directories": {
