@@ -147,7 +147,7 @@ class LineStreaming extends EventEmitter
         @robot.logger.debug 'Env LINE_TOKEN is SET' if @LINE_TOKEN
         @robot.logger.debug 'Env CHANNEL_SECRET is SET' if @CHANNEL_SECRET
         @robot.logger.debug 'Flag USER_PROFILE is SET' if @USER_PROFILE
-
+        @cacheUser = new Map();
         # @REPLY_URL = 'https://api.line.me/v2/bot/message/reply'
         # @LINE_TOKEN = process.env.HUBOT_LINE_TOKEN
 
@@ -175,11 +175,18 @@ class LineStreaming extends EventEmitter
             sourceId = source.userId or source.roomId or source.groupId
             sourceType = source.sourceType
             if @USER_PROFILE and sourceType is 'user'
+              # retrieve from cache
+              if @cacheUser.has(sourceId)
+                @robot.logger.debug("retrieve user-#{sourceId} from cache");
+                @emitEvent event, {sourceId, sourceType}, @cacheUser.get(sourceId)
+                return;
+
               @getProfile(sourceId).then((user) ->
+                self.cacheUser.set sourceId, user
                 self.emitEvent event, {sourceId, sourceType}, user
                 return;
               ).catch((err) ->
-                console.log("Error getting profile: #{err}")
+                self.logger.error("Error getting profile: #{err}")
                 res.statusCode = 404
                 res.send 'Failed get user profile'
                 return;
