@@ -61,14 +61,6 @@ class LineAdapter extends Adapter
         return reply
 
     _formatMsgObj: (msgObj) ->
-        # @robot.logger.debug 'msgObj'
-        # @robot.logger.debug util.inspect msgObj, true, null
-        # @robot.logger.debug 'typeof msgObj'
-        # @robot.logger.debug typeof msgObj
-        # @robot.logger.debug 'msgObj instanceof SendObject'
-        # @robot.logger.debug msgObj instanceof SendObject
-        # @robot.logger.debug 'msgObj instanceof SendSticker'
-        # @robot.logger.debug msgObj instanceof SendSticker
         if msgObj and msgObj.type
             # text, sticker, image. audio, video, location, imagemap(X), template
             obj = {
@@ -93,34 +85,6 @@ class LineAdapter extends Adapter
                 "text": msgObj
             }
 
-    # getTemplate: (template) ->
-    #     # The thumbnailImageUrl and title fields are optional.
-    #     # buttons, confirm, carousel
-    #     obj = {
-    #         type: template.type
-    #     }
-    #     obj.thumbnailImageUrl = template.thumbnailImageUrl if template.thumbnailImageUrl?
-    #     obj.title = template.title if template.title?
-    #     obj.text = template.text
-    #     obj.actions = @getActions(template.actions) if template.actions?
-    #     return obj
-    #
-    # getActions: (actionAry) ->
-    #     ary = []
-    #     ary.push @getAction(action) for action in actionAry
-    #     return ary
-    #
-    # getAction: (action) ->
-    #     # postback, message, uri
-    #     obj = {
-    #         type: action.type
-    #     }
-    #     obj.label = action.label if action.label?
-    #     obj.data = action.data if action.data?
-    #     obj.text = action.text if action.text?
-    #     obj.uri = action.uri if action.uri?
-    #     return obj
-
     run: ->
         self = @
         robot = @robot
@@ -130,42 +94,43 @@ class LineAdapter extends Adapter
         bot = new LineStreaming(options, @robot)
         @streaming = bot
         bot.on 'text',
-            (sourceId, replyToken, msgObj) ->
-                user = @robot.brain.userForId sourceId
-                # console.log util.inspect replyToken, false, null
+            (source, replyToken, msgObj) ->
+                user = @robot.brain.userForId(source.sourceId, source.user)
                 message = new TextMessage(user, msgObj.text, msgObj.id)
                 message.replyToken = replyToken
+                message.sourceType = source.sourceType
                 self.receive message
 
         bot.on 'image',
-            (sourceId, replyToken, msgObj) ->
-                user = @robot.brain.userForId sourceId
+            (source, replyToken, msgObj) ->
+                user = @robot.brain.userForId(source.sourceId, source.user, source.sourceType)
                 message = new ImageMessage(user, msgObj.id, replyToken)
                 self.receive message
 
         bot.on 'video',
-            (sourceId, replyToken, msgObj) ->
-                user = @robot.brain.userForId sourceId
+            (source, replyToken, msgObj) ->
+                user = @robot.brain.userForId(source.sourceId, source.user, source.sourceType)
                 message = new VideoMessage(user, msgObj.id, replyToken)
                 self.receive message
 
         bot.on 'audio',
-            (sourceId, replyToken, msgObj) ->
-                user = @robot.brain.userForId sourceId
+            (source, replyToken, msgObj) ->
+                user = @robot.brain.userForId(source.sourceId, source.user, source.sourceType)
                 message = new AudioMessage(user, msgObj.id, replyToken)
                 self.receive message
 
         bot.on 'location',
-            (sourceId, replyToken, msgObj) ->
-                user = @robot.brain.userForId sourceId
+            (source, replyToken, msgObj) ->
+                user = @robot.brain.userForId(source.sourceId, source.user)
                 message = new LocationMessage(user, msgObj.title, msgObj.address,
-                                msgObj.latitude, msgObj.longitude, msgObj.id, replyToken)
+                    msgObj.latitude, msgObj.longitude, msgObj.id, replyToken, source.sourceType)
                 self.receive message
 
         bot.on 'sticker',
-            (sourceId, replyToken, msgObj) ->
-                user = @robot.brain.userForId sourceId
-                message = new StickerMessage(user, msgObj.packageId, msgObj.stickerId, msgObj.id, replyToken)
+            (source, replyToken, msgObj) ->
+                user = @robot.brain.userForId(source.sourceId, source.user)
+                message = new StickerMessage(user, msgObj.packageId, msgObj.stickerId, msgObj.id,
+                    replyToken, source.sourceType)
                 self.receive message
 
         bot.listen()
@@ -176,41 +141,24 @@ class LineStreaming extends EventEmitter
         # router listen path: '/'
         @PATH = options.path
         @CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET
+        @LINE_TOKEN = process.env.HUBOT_LINE_TOKEN
+        @USER_PROFILE = process.env.USER_PROFILE
+        @PROFILE_URL = 'https://api.line.me/v2/bot/profile/'
+        @robot.logger.debug 'Env LINE_TOKEN is SET' if @LINE_TOKEN
+        @robot.logger.debug 'Env CHANNEL_SECRET is SET' if @CHANNEL_SECRET
+        @robot.logger.debug 'Flag USER_PROFILE is SET' if @USER_PROFILE
+
         # @REPLY_URL = 'https://api.line.me/v2/bot/message/reply'
         # @LINE_TOKEN = process.env.HUBOT_LINE_TOKEN
 
     listen: ->
-        # if @IS_TESTING
-        # @robot.router.get @PATH, (req, res) =>
-        #         console.log 'LISTEN'
-        #         replyToken = 'testing token'
-        #         eventType = 'message'
-        #         text = 'Hubot:hello 中文'
-        #         id = 'testing id'
-        #         userId = 'testing uid'
-        #         # Can't handle other event now, discards them
-        #         if eventType is 'message'
-        #             @emit 'message', userId, replyToken, text, id
-            # res.send 'OK'
+        self = @
 
         @robot.router.post @PATH, (req, res) =>
             @robot.logger.debug 'GET LINE MSG'
 
             # Event
             event = @getEvent req.body.events[0]
-            # event = req.body.events[0];
-            # replyToken = event.replyToken;
-            # eventType = event.type;
-
-            # Message
-            # message = @getMessage event
-            # text = message.text
-            # id = message.id
-            # @robot.logger.debug "text: #{event.message.text}"
-
-            # Source
-            source = @getSource event
-            sourceId = source.userId or source.roomId or source.groupId
 
             # Validate signature
             headerSignature = req.headers['x-line-signature'];
@@ -222,44 +170,67 @@ class LineStreaming extends EventEmitter
                 res.send 'Auth Failed'
                 return;
 
-            # Pass Validate
-            # Can't handle other event except message now, discards them
-            # by implement getcontent api, can retrieve msg content
-            # TODO: check msg here?
-            if event.type is 'message'
-                message = event.message
-                replyToken = event.replyToken
-                # console.log "event_type: #{event.type}, message_type: #{message.type}"
-                # @emit 'text', sourceId, replyToken, message
-                @emit message.type, sourceId, replyToken, message
+            # Source
+            source = @getSource event
+            sourceId = source.userId or source.roomId or source.groupId
+            sourceType = source.sourceType
+            if @USER_PROFILE and sourceType is 'user'
+              @getProfile(sourceId).then((user) ->
+                self.emitEvent event, {sourceId, sourceType}, user
+                return;
+              ).catch((err) ->
+                console.log("Error getting profile: #{err}")
+                res.statusCode = 404
+                res.send 'Failed get user profile'
+                return;
+              )
+              return;
+
+
+            @emitEvent event, {sourceId, sourceType}, null
 
             res.statusCode = 200
             res.send 'OK'
+
+    # Only Calling When Pass Validate
+    # Can't handle other event except message now, discards them
+    # by implement getcontent api, can retrieve msg content
+    emitEvent: (event, source, user) ->
+      if event.type is 'message'
+          message = event.message
+          replyToken = event.replyToken
+          source.user = user if user
+          @emit message.type, source, replyToken, message
 
     # getcontent
     # TODO:
 
     # get profile
-    # TODO:
+    getProfile: (userId) ->
+      self = @
+      logger = @robot.logger
+
+      promise = new Promise((resolve, reject) ->
+        self.robot.http("#{self.PROFILE_URL}#{userId}")
+          .header('Content-Type', 'application/json')
+          .header('Authorization', "Bearer #{self.LINE_TOKEN}")
+          .get() (err, res, body) ->
+            if err
+              logger.error "Error getting profile: #{err}"
+              reject err
+              return
+            if res.statusCode is 200
+              logger.debug "Success, response body: #{body}"
+              resolve JSON.parse(body)
+              return;
+            reject body
+            return;
+      )
+      return promise;
+
 
     # send replyobj
-    # TODO:
-    # sendReply: (replyObj) ->
-    #     logger = @robot.logger
-    #     json = JSON.stringify(replyObj)
-    #     # console.log replyObj
-    #     @robot.http(@REPLY_URL)
-    #         .header('Content-Type', 'application/json')
-    #         .header('Authorization', "Bearer #{@LINE_TOKEN}")
-    #         .post(json) (err, res, body) ->
-    #             if err
-    #                 logger.error "Error sending msg: #{err}"
-    #                 return
-    #             if res.statusCode is 200
-    #                 logger.debug "Success, response body: #{body}"
-    #             else
-    #                 logger.debug "Error with statusCode: #{res.statusCode}"
-    #                 logger.debug "Body: #{body}"
+    # TODO: MOVE sendreply to here
 
     # getEventObj
     getEvent: (event)->

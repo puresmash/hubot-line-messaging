@@ -19,27 +19,27 @@
 #         @type = 'text'
 
 class ImageMessage extends Message
-    constructor: (@user, @id, @replyToken) ->
+    constructor: (@user, @id, @replyToken, @sourceType) ->
         super @user
         @type = 'image'
 
 class VideoMessage extends Message
-    constructor: (@user, @id, @replyToken) ->
+    constructor: (@user, @id, @replyToken, @sourceType) ->
         super @user
         @type = 'video'
 
 class AudioMessage extends Message
-    constructor: (@user, @id, @replyToken) ->
+    constructor: (@user, @id, @replyToken, @sourceType) ->
         super @user
         @type = 'audio'
 
 class LocationMessage extends Message
-    constructor: (@user, @title, @address, @latitude, @longitude, @id, @replyToken)->
+    constructor: (@user, @title, @address, @latitude, @longitude, @id, @replyToken, @sourceType) ->
         super
         @type = 'location'
 
 class StickerMessage extends Message
-    constructor: (@user, @stickerId, @packageId, @id, @replyToken)->
+    constructor: (@user, @stickerId, @packageId, @id, @replyToken, @sourceType) ->
         super
         @type = 'sticker'
 

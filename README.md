@@ -28,16 +28,21 @@ There are several environment variables need to be set in your Node.js server
 
 ```sh
 HUBOT_NAME=${your_bot_name}
-HUBOT_LINE_TOKEN="${your_token}"
+HUBOT_LINE_TOKEN=${your_token}
 LINE_CHANNEL_SECRET=${CHANNEL_SECRET}
+# optional
+# If USER_PROFILE is SET (!==0), you can get additional user profile in res.message.user
+USER_PROFILE=${USER_PROFILE}
 ```
 
 If you are using Heroku, the command will be
 
 ```sh
 heroku config:add HUBOT_NAME=${your_bot_name}
-heroku config:add HUBOT_LINE_TOKEN="${your_token}"
+heroku config:add HUBOT_LINE_TOKEN=${your_token}
 heroku config:add LINE_CHANNEL_SECRET=${CHANNEL_SECRET}
+# optional
+heroku config:add USER_PROFILE=${USER_PROFILE}
 ```
 
 ### Start robot

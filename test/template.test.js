@@ -9,15 +9,16 @@ const util = require("util");
 const Robot       = require("hubot/src/robot");
 const TextMessage = require("hubot/src/message").TextMessage;
 
-const LineMessaging = require('index')
-const SendSticker = LineMessaging.SendSticker;
-const SendLocation = LineMessaging.SendLocation;
-const SendImage = LineMessaging.SendImage;
-const SendVideo = LineMessaging.SendVideo;
-const SendText = LineMessaging.SendText;
-const SendAudio = LineMessaging.SendAudio;
-const StickerMessage = LineMessaging.StickerMessage;
-const BuildTemplateMessage = LineMessaging.BuildTemplateMessage;
+const {
+  SendSticker,
+  SendLocation,
+  SendImage,
+  SendVideo,
+  SendText,
+  SendAudio,
+  StickerMessage,
+  BuildTemplateMessage,
+} = require('index');
 
 describe('Test template messages', function() {
     let robot;

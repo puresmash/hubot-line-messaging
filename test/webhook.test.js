@@ -9,15 +9,16 @@ const util = require("util");
 const Robot       = require("hubot/src/robot");
 const TextMessage = require("hubot/src/message").TextMessage;
 
-const LineMessaging = require('index')
-const SendSticker = LineMessaging.SendSticker;
-const SendLocation = LineMessaging.SendLocation;
-const SendImage = LineMessaging.SendImage;
-const SendVideo = LineMessaging.SendVideo;
-const SendText = LineMessaging.SendText;
-const SendAudio = LineMessaging.SendAudio;
-const StickerMessage = LineMessaging.StickerMessage;
-const BuildTemplateMessage = LineMessaging.BuildTemplateMessage;
+const {
+  SendSticker,
+  SendLocation,
+  SendImage,
+  SendVideo,
+  SendText,
+  SendAudio,
+  StickerMessage,
+  BuildTemplateMessage,
+} = require('index');
 
 describe('Test webhook', function() {
     let robot;
@@ -61,7 +62,7 @@ describe('Test webhook', function() {
                     "timestamp": 1462629479859,
                     "source": {
                          "type": "user",
-                         "userId": "U206d25c2ea6bd87c17655609a1c37cb8"
+                         "userId": "U12345678901234567890123456789012"
                      },
                      "message": {/*  override me */}
                   }
@@ -115,17 +116,20 @@ describe('Test webhook', function() {
             it("should emit a text event to customize scripts", function(done) {
                 const spy = sinon.spy();
                 const expected = {
-                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "source": {
+                      "sourceId": "U12345678901234567890123456789012",
+                      "sourceType": "user"
+                    },
                     "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
                     "message": message
-                }
+                };
 
                 adapter.streaming.once('text', spy);
                 // Fire http
                 httpRequest.post(json)((err, res, body)=>{
                     expect(res.statusCode).to.equal(200);
                     sinon.assert.calledOnce(spy);
-                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    sinon.assert.calledWith(spy, expected.source, expected.replyToken, expected.message);
                     done();
                 });
 
@@ -150,7 +154,10 @@ describe('Test webhook', function() {
             it("should emit a sticker event to customize scripts", function(done) {
                 const spy = sinon.spy();
                 const expected = {
-                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "source": {
+                      "sourceId": "U12345678901234567890123456789012",
+                      "sourceType": "user"
+                    },
                     "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
                     "message": message
                 }
@@ -160,7 +167,7 @@ describe('Test webhook', function() {
                 httpRequest.post(json)(function(err, res, body){
                     expect(res.statusCode).to.equal(200);
                     sinon.assert.calledOnce(spy);
-                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    sinon.assert.calledWith(spy, expected.source, expected.replyToken, expected.message);
                     done();
                 });
 
@@ -183,7 +190,10 @@ describe('Test webhook', function() {
             it("should emit a image event to customize scripts", function(done) {
                 const spy = sinon.spy();
                 const expected = {
-                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "source": {
+                      "sourceId": "U12345678901234567890123456789012",
+                      "sourceType": "user"
+                    },
                     "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
                     "message": message
                 }
@@ -193,7 +203,7 @@ describe('Test webhook', function() {
                 httpRequest.post(json)(function(err, res, body){
                     expect(res.statusCode).to.equal(200);
                     sinon.assert.calledOnce(spy);
-                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    sinon.assert.calledWith(spy, expected.source, expected.replyToken, expected.message);
                     done();
                 });
 
@@ -216,7 +226,10 @@ describe('Test webhook', function() {
             it("should emit a video event to customize scripts", function(done) {
                 const spy = sinon.spy();
                 const expected = {
-                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "source": {
+                      "sourceId": "U12345678901234567890123456789012",
+                      "sourceType": "user"
+                    },
                     "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
                     "message": message
                 }
@@ -226,7 +239,7 @@ describe('Test webhook', function() {
                 httpRequest.post(json)(function(err, res, body){
                     expect(res.statusCode).to.equal(200);
                     sinon.assert.calledOnce(spy);
-                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    sinon.assert.calledWith(spy, expected.source, expected.replyToken, expected.message);
                     done();
                 });
 
@@ -249,7 +262,10 @@ describe('Test webhook', function() {
             it("should emit a audio event to customize scripts", function(done) {
                 const spy = sinon.spy();
                 const expected = {
-                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "source": {
+                      "sourceId": "U12345678901234567890123456789012",
+                      "sourceType": "user"
+                    },
                     "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
                     "message": message
                 }
@@ -259,7 +275,7 @@ describe('Test webhook', function() {
                 httpRequest.post(json)(function(err, res, body){
                     expect(res.statusCode).to.equal(200);
                     sinon.assert.calledOnce(spy);
-                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    sinon.assert.calledWith(spy, expected.source, expected.replyToken, expected.message);
                     done();
                 });
 
@@ -286,7 +302,10 @@ describe('Test webhook', function() {
             it("should emit a location event to customize scripts", function(done) {
                 const spy = sinon.spy();
                 const expected = {
-                    "sourceId": "U206d25c2ea6bd87c17655609a1c37cb8",
+                    "source": {
+                      "sourceId": "U12345678901234567890123456789012",
+                      "sourceType": "user"
+                    },
                     "replyToken": "nHuyWiB7yP5Zw52FIkcQobQuGDXCTA",
                     "message": message
                 }
@@ -296,7 +315,7 @@ describe('Test webhook', function() {
                 httpRequest.post(json)(function(err, res, body){
                     expect(res.statusCode).to.equal(200);
                     sinon.assert.calledOnce(spy);
-                    sinon.assert.calledWith(spy, expected.sourceId, expected.replyToken, expected.message);
+                    sinon.assert.calledWith(spy, expected.source, expected.replyToken, expected.message);
                     done();
                 });
 
