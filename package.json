@@ -1,6 +1,6 @@
 {
   "name": "hubot-line-messaging",
-  "version": "0.6.0-beta",
+  "version": "0.6.0",
   "author": "swat <puresmash@gmail.com>",
   "description": "A Hubot adapter for Line Message API",
   "main": "./index",
